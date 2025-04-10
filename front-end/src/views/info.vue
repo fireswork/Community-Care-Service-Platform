@@ -22,6 +22,7 @@
       :data-source="dataSource"
       :loading="loading"
       rowKey="id"
+      :scroll="{x: 1300}"
       bordered
     >
       <template #bodyCell="{ column, record }">
@@ -77,9 +78,9 @@
         </a-form-item>
         <a-form-item label="所属分类" name="category">
           <a-select v-model:value="formState.category" placeholder="请选择所属分类">
-            <a-select-option value="老年人">老年人</a-select-option>
-            <a-select-option value="残疾人">残疾人</a-select-option>
-            <a-select-option value="低保户">低保户</a-select-option>
+            <a-select-option v-for="category in categories" :key="category.id" :value="category.name">
+              {{ category.name }}
+            </a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item label="家庭住址" name="address">
@@ -120,25 +121,21 @@ const columns = [
     title: '性别',
     dataIndex: 'gender',
     key: 'gender',
-    width: 80
   },
   {
     title: '年龄',
     dataIndex: 'age',
     key: 'age',
-    width: 80
   },
   {
     title: '身份证号',
     dataIndex: 'idCard',
     key: 'idCard',
-    width: 180
   },
   {
     title: '联系电话',
     dataIndex: 'phone',
     key: 'phone',
-    width: 130
   },
   {
     title: '所属分类',
@@ -188,6 +185,8 @@ const rules = {
   address: [{ required: true, message: '请输入家庭住址', trigger: 'blur' }]
 }
 
+const categories = ref([])
+
 // 获取API基础URL
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
@@ -202,6 +201,18 @@ const getRequestConfig = () => {
     headers: {
       'Authorization': `Bearer ${getToken()}`
     }
+  }
+}
+
+// 获取分类列表
+const loadCategories = async () => {
+  try {
+    const response = await axios.get(`${apiBaseUrl}/api/categories`)
+    if (response.data.code === 200) {
+      categories.value = response.data.data
+    }
+  } catch (error) {
+    console.error('获取分类列表失败:', error)
   }
 }
 
@@ -398,8 +409,9 @@ const handleSearch = () => {
   loadPersons(searchKeyword.value)
 }
 
-// 组件挂载时加载数据
+// 组件挂载时加载分类数据
 onMounted(() => {
+  loadCategories()
   loadPersons()
 })
 </script>

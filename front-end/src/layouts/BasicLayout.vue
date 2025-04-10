@@ -18,7 +18,7 @@
               <template #icon>
                 <component :is="item.meta?.icon" />
               </template>
-              <span>{{ item.meta?.title }}</span>
+              <span>{{ userInfo.role === 'admin' ? item.meta?.title : item.meta?.title?.replace('管理', '') }}</span>
             </a-menu-item>
           </template>
           <template v-else>
@@ -53,7 +53,7 @@
           </a-avatar>
           <a-dropdown>
             <a class="ant-dropdown-link" @click.prevent>
-              Admin <down-outlined />
+              {{ userInfo.name }} <down-outlined />
             </a>
             <template #overlay>
               <a-menu>
@@ -157,6 +157,7 @@ const route = useRoute()
 const collapsed = ref(false)
 const selectedKeys = ref([route.path])
 const openKeys = ref([])
+const userInfo = ref(JSON.parse(localStorage.getItem('user')))
 
 // 监听路由变化，更新选中的菜单项
 watch(
@@ -184,9 +185,9 @@ const userInfoModalVisible = ref(false)
 const userInfoConfirmLoading = ref(false)
 const userInfoFormRef = ref(null)
 const userInfoForm = reactive({
-  username: 'admin', // 这里应该从实际用户数据中获取
-  name: '',
-  phone: ''
+  username: userInfo.value.username,
+  name: userInfo.value.name,
+  phone: userInfo.value.phone
 })
 
 const userInfoRules = {

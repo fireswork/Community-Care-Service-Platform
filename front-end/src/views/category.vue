@@ -22,6 +22,7 @@
       :columns="columns"
       :data-source="dataSource"
       :loading="loading"
+      :scroll="{x: 1300}"
       rowKey="id"
       bordered
     >

@@ -93,6 +93,7 @@ const handleSubmit = () => {
     login(formState)
       .then(res => {
         localStorage.setItem('token', res.data.token)
+        localStorage.setItem('user', JSON.stringify(res.data.user))
         message.success('登录成功')
         router.push('/')
       })
