@@ -79,10 +79,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUserInfo(User user) {
-        User existingUser = userMapper.findByUsername(user.getUsername());
-        if (existingUser != null && !existingUser.getId().equals(user.getId())) {
-            throw new BusinessException("用户名已存在");
-        }
         userMapper.update(user);
     }
 
