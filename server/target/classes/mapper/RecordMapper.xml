@@ -69,15 +69,17 @@
         DELETE FROM record WHERE id = #{id}
     </delete>
 
-    <select id="selectByUser" resultType="com.community.server.model.Record">
-        SELECT * FROM record 
-        WHERE created_by = #{userId}
+    <select id="selectByUser" resultMap="BaseResultMap">
+        SELECT r.*, p.name as person_name, p.category
+        FROM record r
+        LEFT JOIN person p ON r.person_id = p.id
+        WHERE r.created_by = #{userId}
         <if test="category != null and category != ''">
-            AND category = #{category}
+            AND p.category = #{category}
         </if>
         <if test="type != null and type != ''">
-            AND type = #{type}
+            AND r.type = #{type}
         </if>
-        ORDER BY created_time DESC
+        ORDER BY r.care_time DESC
     </select>
 </mapper> 
