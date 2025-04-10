@@ -10,34 +10,28 @@
         <result column="phone" property="phone" />
         <result column="category" property="category" />
         <result column="address" property="address" />
-        <result column="health_status" property="healthStatus" />
-        <result column="notes" property="notes" />
         <result column="remark" property="remark" />
         <result column="creator_id" property="creatorId" />
-        <result column="created_by" property="createdBy" />
-        <result column="created_at" property="createdAt" />
         <result column="create_time" property="createTime" />
-        <result column="updated_by" property="updatedBy" />
-        <result column="updated_at" property="updatedAt" />
         <result column="update_time" property="updateTime" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, name, gender, age, id_card, phone, category, address, health_status, notes, remark, 
-        creator_id, created_by, created_at, create_time, updated_by, updated_at, update_time
+        id, name, gender, age, id_card, phone, category, address, remark, 
+        creator_id, create_time, update_time
     </sql>
 
     <select id="findAll" resultMap="BaseResultMap">
         SELECT 
             <include refid="Base_Column_List" />
-        FROM persons
+        FROM person
         ORDER BY create_time DESC
     </select>
     
     <select id="findByCreatorId" resultMap="BaseResultMap">
         SELECT 
             <include refid="Base_Column_List" />
-        FROM persons
+        FROM person
         WHERE creator_id = #{creatorId}
         ORDER BY create_time DESC
     </select>
@@ -45,7 +39,7 @@
     <select id="search" resultMap="BaseResultMap">
         SELECT 
             <include refid="Base_Column_List" />
-        FROM persons
+        FROM person
         <where>
             <if test="keyword != null and keyword != ''">
                 (name LIKE CONCAT('%', #{keyword}, '%') 
@@ -62,23 +56,22 @@
     <select id="findById" parameterType="java.lang.Long" resultMap="BaseResultMap">
         SELECT 
             <include refid="Base_Column_List" />
-        FROM persons
+        FROM person
         WHERE id = #{id}
     </select>
 
     <insert id="insert" parameterType="com.community.server.model.Person" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO persons (
-            name, gender, age, id_card, phone, category, address, health_status, notes, remark,
-            creator_id, created_by, created_at, create_time, updated_by, updated_at, update_time
+        INSERT INTO person (
+            name, gender, age, id_card, phone, category, address, remark,
+            creator_id, create_time, update_time
         ) VALUES (
-            #{name}, #{gender}, #{age}, #{idCard}, #{phone}, #{category}, #{address}, #{healthStatus}, 
-            #{notes}, #{remark}, #{creatorId}, #{createdBy}, #{createdAt}, #{createTime},
-            #{updatedBy}, #{updatedAt}, #{updateTime}
+            #{name}, #{gender}, #{age}, #{idCard}, #{phone}, #{category}, #{address}, 
+            #{remark}, #{creatorId}, #{createTime}, #{updateTime}
         )
     </insert>
 
     <update id="update" parameterType="com.community.server.model.Person">
-        UPDATE persons
+        UPDATE person
         <set>
             <if test="name != null">name = #{name},</if>
             <if test="gender != null">gender = #{gender},</if>
@@ -87,18 +80,14 @@
             <if test="phone != null">phone = #{phone},</if>
             <if test="category != null">category = #{category},</if>
             <if test="address != null">address = #{address},</if>
-            <if test="healthStatus != null">health_status = #{healthStatus},</if>
-            <if test="notes != null">notes = #{notes},</if>
             <if test="remark != null">remark = #{remark},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
-            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
-            <if test="updatedBy != null">updated_by = #{updatedBy}</if>
+            <if test="updateTime != null">update_time = #{updateTime}</if>
         </set>
         WHERE id = #{id}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Long">
-        DELETE FROM persons
+        DELETE FROM person
         WHERE id = #{id}
     </delete>
 </mapper> 

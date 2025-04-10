@@ -5,11 +5,29 @@
         <a-button type="primary" @click="showModal">
           <plus-outlined /> 新增记录
         </a-button>
-        <a-range-picker
-          v-model:value="dateRange"
-          style="width: 250px"
-          @change="handleDateChange"
-        />
+        <a-select
+          v-model:value="searchCategory"
+          placeholder="选择所属分类"
+          style="width: 160px"
+          allowClear
+          @change="handleSearch"
+        >
+          <a-select-option v-for="category in categories" :key="category.id" :value="category.name">
+            {{ category.name }}
+          </a-select-option>
+        </a-select>
+        <a-select
+          v-model:value="searchType"
+          placeholder="选择关怀类型"
+          style="width: 160px"
+          allowClear
+          @change="handleSearch"
+        >
+          <a-select-option value="走访">走访</a-select-option>
+          <a-select-option value="电话慰问">电话慰问</a-select-option>
+          <a-select-option value="物资帮助">物资帮助</a-select-option>
+          <a-select-option value="医疗救助">医疗救助</a-select-option>
+        </a-select>
       </a-space>
     </div>
 
@@ -18,6 +36,7 @@
       :data-source="dataSource"
       :loading="loading"
       rowKey="id"
+      :scroll="{x: 1300}"
       bordered
     >
       <template #bodyCell="{ column, record }">
@@ -96,10 +115,11 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
+import axios from 'axios'
 
 const columns = [
   {
@@ -111,19 +131,16 @@ const columns = [
     title: '所属分类',
     dataIndex: 'category',
     key: 'category',
-    width: 100
   },
   {
     title: '关怀类型',
     dataIndex: 'type',
     key: 'type',
-    width: 100
   },
   {
     title: '关怀时间',
     dataIndex: 'careTime',
     key: 'careTime',
-    width: 180
   },
   {
     title: '关怀内容',
@@ -133,45 +150,85 @@ const columns = [
   {
     title: '操作',
     key: 'action',
-    width: 150,
     fixed: 'right'
   }
 ]
 
-const peopleOptions = [
-  { value: 1, label: '张三（老年人）' },
-  { value: 2, label: '李四（残疾人）' }
-]
+const peopleOptions = ref([])
 
-const dataSource = ref([
-  {
-    id: 1,
-    personId: 1,
-    personName: '张三',
-    category: '老年人',
-    type: '走访',
-    careTime: '2024-04-09 10:00:00',
-    content: '上门走访，了解生活情况',
-    remark: '身体状况良好'
-  },
-  {
-    id: 2,
-    personId: 2,
-    personName: '李四',
-    category: '残疾人',
-    type: '物资帮助',
-    careTime: '2024-04-08 14:30:00',
-    content: '送去生活必需品',
-    remark: '需要定期关注'
-  }
-])
-
+const categories = ref([])
+const searchCategory = ref()
+const searchType = ref()
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref('新增记录')
 const formRef = ref(null)
 const currentId = ref(null)
-const dateRange = ref(null)
+const dataSource = ref([])
+
+// 获取API基础URL
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+
+// 获取token
+const getToken = () => {
+  return localStorage.getItem('token')
+}
+
+// 获取API请求配置
+const getRequestConfig = () => {
+  return {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  }
+}
+
+// 加载分类列表
+const loadCategories = async () => {
+  try {
+    const response = await axios.get(`${apiBaseUrl}/api/categories`, getRequestConfig())
+    if (response.data.code === 200) {
+      categories.value = response.data.data
+    }
+  } catch (error) {
+    console.error('获取分类列表失败:', error)
+  }
+}
+
+// 加载关怀记录列表
+const loadRecords = async () => {
+  loading.value = true
+  try {
+    let url = `${apiBaseUrl}/api/records`
+    const params = {}
+    if (searchCategory.value) {
+      params.category = searchCategory.value
+    }
+    if (searchType.value) {
+      params.type = searchType.value
+    }
+    
+    const response = await axios.get(url, { 
+      ...getRequestConfig(),
+      params
+    })
+    if (response.data.code === 200) {
+      dataSource.value = response.data.data
+    } else {
+      message.error(response.data.message || '获取记录列表失败')
+    }
+  } catch (error) {
+    console.error('获取记录列表失败:', error)
+    message.error('获取记录列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 处理搜索
+const handleSearch = () => {
+  loadRecords()
+}
 
 const formState = reactive({
   personId: undefined,
@@ -211,45 +268,53 @@ const handleEdit = (record) => {
   modalVisible.value = true
 }
 
-const handleDelete = (record) => {
+const handleDelete = async (record) => {
   loading.value = true
-  const index = dataSource.value.findIndex(item => item.id === record.id)
-  if (index > -1) {
-    dataSource.value.splice(index, 1)
-    message.success('删除成功')
+  try {
+    const response = await axios.delete(`${apiBaseUrl}/api/records/${record.id}`, getRequestConfig())
+    if (response.data.code === 200) {
+      message.success('删除成功')
+      await loadRecords()
+    } else {
+      message.error(response.data.message || '删除失败')
+    }
+  } catch (error) {
+    console.error('删除失败:', error)
+    message.error('删除失败')
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 
 const handleModalOk = () => {
-  formRef.value.validate().then(() => {
+  formRef.value.validate().then(async () => {
     loading.value = true
-    const selectedPerson = peopleOptions.find(item => item.value === formState.personId)
-    const data = {
-      ...formState,
-      careTime: dayjs(formState.careTime).format('YYYY-MM-DD HH:mm:ss'),
-      personName: selectedPerson?.label.split('（')[0],
-      category: selectedPerson?.label.match(/（(.+)）/)[1]
-    }
-
-    if (currentId.value) {
-      const index = dataSource.value.findIndex(item => item.id === currentId.value)
-      if (index > -1) {
-        dataSource.value[index] = {
-          ...dataSource.value[index],
-          ...data
-        }
-        message.success('编辑成功')
+    try {
+      const data = {
+        ...formState,
+        careTime: dayjs(formState.careTime).format('YYYY-MM-DD HH:mm:ss')
       }
-    } else {
-      dataSource.value.push({
-        id: Date.now(),
-        ...data
-      })
-      message.success('新增成功')
+
+      let response
+      if (currentId.value) {
+        response = await axios.put(`${apiBaseUrl}/api/records/${currentId.value}`, data, getRequestConfig())
+      } else {
+        response = await axios.post(`${apiBaseUrl}/api/records`, data, getRequestConfig())
+      }
+
+      if (response.data.code === 200) {
+        message.success(currentId.value ? '编辑成功' : '新增成功')
+        modalVisible.value = false
+        await loadRecords()
+      } else {
+        message.error(response.data.message || (currentId.value ? '编辑失败' : '新增失败'))
+      }
+    } catch (error) {
+      console.error(currentId.value ? '编辑失败' : '新增失败', error)
+      message.error(currentId.value ? '编辑失败' : '新增失败')
+    } finally {
+      loading.value = false
     }
-    loading.value = false
-    modalVisible.value = false
   })
 }
 
@@ -257,11 +322,30 @@ const handleModalCancel = () => {
   modalVisible.value = false
 }
 
-const handleDateChange = () => {
-  loading.value = true
-  // 这里应该调用按日期范围查询的 API
-  loading.value = false
+// 加载关怀对象列表
+const loadPeople = async () => {
+  try {
+    const response = await axios.get(`${apiBaseUrl}/api/persons`, getRequestConfig())
+    if (response.data.code === 200) {
+      peopleOptions.value = response.data.data.map(person => ({
+        value: person.id,
+        label: `${person.name}（${person.category}）`
+      }))
+    } else {
+      message.error(response.data.message || '获取关怀对象列表失败')
+    }
+  } catch (error) {
+    console.error('获取关怀对象列表失败:', error)
+    message.error('获取关怀对象列表失败')
+  }
 }
+
+// 组件挂载时加载数据
+onMounted(() => {
+  loadPeople()
+  loadCategories()
+  loadRecords()
+})
 </script>
 
 <style lang="less" scoped>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.server.mapper.RecordMapper">
+    <resultMap id="BaseResultMap" type="com.community.server.model.Record">
+        <id column="id" property="id"/>
+        <result column="person_id" property="personId"/>
+        <result column="person_name" property="personName"/>
+        <result column="category" property="category"/>
+        <result column="type" property="type"/>
+        <result column="care_time" property="careTime"/>
+        <result column="content" property="content"/>
+        <result column="remark" property="remark"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="updated_time" property="updatedTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, person_id, person_name, category, type, care_time, content, remark,
+        created_by, created_time, updated_by, updated_time
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT r.*, p.name as person_name, p.category
+        FROM record r
+        LEFT JOIN person p ON r.person_id = p.id
+        <where>
+            <if test="category != null and category != ''">
+                AND p.category = #{category}
+            </if>
+            <if test="type != null and type != ''">
+                AND r.type = #{type}
+            </if>
+        </where>
+        ORDER BY r.care_time DESC
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT r.*, p.name as person_name, p.category
+        FROM record r
+        LEFT JOIN person p ON r.person_id = p.id
+        WHERE r.id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.community.server.model.Record" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO record (
+            person_id, type, care_time, content, remark,
+            created_by, created_time, updated_by, updated_time
+        ) VALUES (
+            #{personId}, #{type}, #{careTime}, #{content}, #{remark},
+            #{createdBy}, NOW(), #{updatedBy}, NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.community.server.model.Record">
+        UPDATE record
+        SET person_id = #{personId},
+            type = #{type},
+            care_time = #{careTime},
+            content = #{content},
+            remark = #{remark},
+            updated_by = #{updatedBy},
+            updated_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM record WHERE id = #{id}
+    </delete>
+</mapper> 

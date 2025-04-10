@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "persons")
+@Table(name = "person")
 public class Person {
 
     @Id
@@ -38,29 +38,11 @@ public class Person {
     @Column
     private String address;
 
-    @Column(name = "health_status")
-    private String healthStatus;
-
-    @Column
-    private String notes;
-
     @Column(name = "remark")
     private String remark;
 
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @Column(name = "created_by")
-    private Long createdBy;
-
     @Column(name = "creator_id")
     private Long creatorId;
-
-    @Column(name = "updated_at")
-    private Date updatedAt;
-
-    @Column(name = "updated_by")
-    private Long updatedBy;
 
     @Column(name = "create_time")
     private Date createTime;
@@ -133,22 +115,6 @@ public class Person {
         this.address = address;
     }
 
-    public String getHealthStatus() {
-        return healthStatus;
-    }
-
-    public void setHealthStatus(String healthStatus) {
-        this.healthStatus = healthStatus;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
     public String getRemark() {
         return remark;
     }
@@ -157,44 +123,12 @@ public class Person {
         this.remark = remark;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public Long getCreatorId() {
         return creatorId;
     }
 
     public void setCreatorId(Long creatorId) {
         this.creatorId = creatorId;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Long getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(Long updatedBy) {
-        this.updatedBy = updatedBy;
     }
 
     public Date getCreateTime() {

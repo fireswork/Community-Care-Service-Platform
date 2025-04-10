@@ -47,10 +47,6 @@ public class PersonServiceImpl implements PersonService {
         person.setCreateTime(new Date());
         person.setUpdateTime(new Date());
         
-        // 同时设置JPA和MyBatis兼容的字段
-        person.setCreatedBy(userId);
-        person.setCreatedAt(new Date());
-        
         personMapper.insert(person);
         return person;
     }
@@ -74,14 +70,8 @@ public class PersonServiceImpl implements PersonService {
         existingPerson.setAddress(person.getAddress());
         existingPerson.setRemark(person.getRemark());
         
-        // 也更新健康状态和备注字段
-        existingPerson.setHealthStatus(person.getHealthStatus());
-        existingPerson.setNotes(person.getNotes());
-        
         // 更新时间
         existingPerson.setUpdateTime(new Date());
-        existingPerson.setUpdatedAt(new Date());
-        existingPerson.setUpdatedBy(userId);
         
         personMapper.update(existingPerson);
         return existingPerson;

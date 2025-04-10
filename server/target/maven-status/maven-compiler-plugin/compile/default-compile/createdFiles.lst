@@ -1,10 +1,12 @@
 com/community/server/config/CorsConfig.class
 com/community/server/common/Result.class
 com/community/server/model/Category.class
+com/community/server/service/RecordService.class
 com/community/server/service/CategoryService.class
 com/community/server/service/PersonService.class
 com/community/server/config/SecurityConfig.class
 com/community/server/exception/UnauthorizedException.class
+com/community/server/controller/RecordController.class
 com/community/server/mapper/PersonMapper.class
 com/community/server/model/Result.class
 com/community/server/service/UserService.class
@@ -13,6 +15,7 @@ com/community/server/service/impl/CategoryServiceImpl.class
 com/community/server/controller/CategoryController.class
 com/community/server/controller/PersonController.class
 com/community/server/mapper/CategoryMapper.class
+com/community/server/config/JacksonConfig.class
 com/community/server/ServerApplication.class
 com/community/server/model/Person.class
 com/community/server/common/GlobalExceptionHandler.class
@@ -20,5 +23,7 @@ com/community/server/model/User.class
 com/community/server/exception/ResourceNotFoundException.class
 com/community/server/repository/UserMapper.class
 com/community/server/security/JwtTokenUtil.class
+com/community/server/mapper/RecordMapper.class
 com/community/server/security/JwtAuthenticationFilter.class
+com/community/server/model/Record.class
 com/community/server/service/impl/PersonServiceImpl.class
