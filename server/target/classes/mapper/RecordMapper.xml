@@ -68,4 +68,16 @@
     <delete id="deleteById">
         DELETE FROM record WHERE id = #{id}
     </delete>
+
+    <select id="selectByUser" resultType="com.community.server.model.Record">
+        SELECT * FROM record 
+        WHERE created_by = #{userId}
+        <if test="category != null and category != ''">
+            AND category = #{category}
+        </if>
+        <if test="type != null and type != ''">
+            AND type = #{type}
+        </if>
+        ORDER BY created_time DESC
+    </select>
 </mapper> 

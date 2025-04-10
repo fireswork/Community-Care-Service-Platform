@@ -16,6 +16,10 @@ public class RecordService {
         return recordMapper.selectAll(category, type);
     }
 
+    public List<Record> getRecordsByUser(Long userId, String category, String type) {
+        return recordMapper.selectByUser(userId, category, type);
+    }
+
     public Record getRecordById(Long id) {
         return recordMapper.selectById(id);
     }

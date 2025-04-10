@@ -10,6 +10,8 @@ import java.util.List;
 public interface RecordMapper {
     List<Record> selectAll(@Param("category") String category, @Param("type") String type);
     
+    List<Record> selectByUser(@Param("userId") Long userId, @Param("category") String category, @Param("type") String type);
+    
     Record selectById(@Param("id") Long id);
     
     int insert(Record record);
