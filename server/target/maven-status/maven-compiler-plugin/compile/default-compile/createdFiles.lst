@@ -1,4 +1,5 @@
 com/community/server/service/impl/UserServiceImpl.class
+com/community/server/service/impl/StatisticsServiceImpl.class
 com/community/server/config/CorsConfig.class
 com/community/server/common/Result.class
 com/community/server/model/Category.class
@@ -21,6 +22,7 @@ com/community/server/config/JacksonConfig.class
 com/community/server/ServerApplication.class
 com/community/server/exception/BusinessException.class
 com/community/server/model/Person.class
+com/community/server/controller/StatisticsController.class
 com/community/server/controller/UserController.class
 com/community/server/common/GlobalExceptionHandler.class
 com/community/server/model/User.class
@@ -28,6 +30,8 @@ com/community/server/exception/ResourceNotFoundException.class
 com/community/server/repository/UserMapper.class
 com/community/server/security/JwtTokenUtil.class
 com/community/server/mapper/RecordMapper.class
+com/community/server/mapper/StatisticsMapper.class
+com/community/server/service/StatisticsService.class
 com/community/server/security/JwtAuthenticationFilter.class
 com/community/server/model/Record.class
 com/community/server/service/impl/PersonServiceImpl.class

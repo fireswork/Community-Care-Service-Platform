@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.community.server.mapper.StatisticsMapper">
+    
+    <!-- 统计总人数 -->
+    <select id="countTotalPersons" resultType="int">
+        SELECT COUNT(*) FROM person
+    </select>
+    
+    <!-- 统计本月新增人数 -->
+    <select id="countNewPersonsThisMonth" resultType="int">
+        SELECT COUNT(*) FROM person
+        WHERE DATE_FORMAT(create_time, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+    </select>
+    
+    <!-- 统计本月关怀记录数 -->
+    <select id="countCareRecordsThisMonth" resultType="int">
+        SELECT COUNT(*) FROM record
+        WHERE DATE_FORMAT(care_time, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+    </select>
+    
+    <!-- 统计有关怀记录的人数 -->
+    <select id="countPersonsWithCare" resultType="int">
+        SELECT COUNT(DISTINCT person_id) FROM record
+    </select>
+    
+    <!-- 按分类统计人数 -->
+    <select id="countPersonsByCategory" resultType="java.util.Map">
+        SELECT category, COUNT(*) as count
+        FROM person
+        GROUP BY category
+        ORDER BY count DESC
+    </select>
+    
+    <!-- 按类型统计关怀记录数 -->
+    <select id="countRecordsByType" resultType="java.util.Map">
+        SELECT type, COUNT(*) as count
+        FROM record
+        GROUP BY type
+    </select>
+    
+    <!-- 按月份统计关怀记录数 -->
+    <select id="countRecordsByMonth" resultType="java.util.Map">
+        SELECT DATE_FORMAT(care_time, '%Y-%m') as month, COUNT(*) as count
+        FROM record
+        WHERE care_time >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 11 MONTH)
+        GROUP BY month
+        ORDER BY month
+    </select>
+</mapper> 

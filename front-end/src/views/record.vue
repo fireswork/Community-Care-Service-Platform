@@ -94,8 +94,7 @@
           <a-date-picker
             v-model:value="formState.careTime"
             style="width: 100%"
-            show-time
-            format="YYYY-MM-DD HH:mm:ss"
+            format="YYYY-MM-DD"
           />
         </a-form-item>
         <a-form-item label="关怀内容" name="content">

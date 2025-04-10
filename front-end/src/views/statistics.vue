@@ -5,7 +5,7 @@
         <a-card>
           <statistic
             title="总关怀人数"
-            :value="112"
+            :value="statsData.totalPersons"
             :value-style="{ color: '#3f8600' }"
           >
             <template #prefix>
@@ -18,7 +18,7 @@
         <a-card>
           <statistic
             title="本月新增"
-            :value="11"
+            :value="statsData.newPersonsThisMonth"
             :value-style="{ color: '#cf1322' }"
           >
             <template #prefix>
@@ -31,7 +31,7 @@
         <a-card>
           <statistic
             title="本月关怀次数"
-            :value="56"
+            :value="statsData.careCountThisMonth"
           >
             <template #prefix>
               <heart-outlined />
@@ -43,7 +43,7 @@
         <a-card>
           <statistic
             title="关怀覆盖率"
-            :value="95.6"
+            :value="statsData.coverageRate"
             :precision="1"
             suffix="%"
           >
@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { Statistic } from 'ant-design-vue'
 import { TeamOutlined, RiseOutlined, HeartOutlined, LikeOutlined } from '@ant-design/icons-vue'
 import VChart from 'vue-echarts'
@@ -92,6 +92,7 @@ import {
   LegendComponent,
   GridComponent
 } from 'echarts/components'
+import { getOverviewStatistics, getCategoryStatistics, getCareTypeStatistics, getMonthlyStatistics } from '@/api/statistics'
 
 use([
   CanvasRenderer,
@@ -104,7 +105,16 @@ use([
   GridComponent
 ])
 
-const categoryOption = {
+// 统计数据
+const statsData = reactive({
+  totalPersons: 0,
+  newPersonsThisMonth: 0,
+  careCountThisMonth: 0,
+  coverageRate: 0
+})
+
+// 图表数据
+const categoryOption = ref({
   tooltip: {
     trigger: 'item',
     formatter: '{a} <br/>{b}: {c} ({d}%)'
@@ -138,16 +148,12 @@ const categoryOption = {
       labelLine: {
         show: false
       },
-      data: [
-        { value: 45, name: '老年人' },
-        { value: 35, name: '残疾人' },
-        { value: 32, name: '低保户' }
-      ]
+      data: []
     }
   ]
-}
+})
 
-const typeOption = {
+const typeOption = ref({
   tooltip: {
     trigger: 'axis',
     axisPointer: {
@@ -163,7 +169,7 @@ const typeOption = {
   xAxis: [
     {
       type: 'category',
-      data: ['走访', '电话慰问', '物资帮助', '医疗救助'],
+      data: [],
       axisTick: {
         alignWithLabel: true
       }
@@ -179,12 +185,12 @@ const typeOption = {
       name: '次数',
       type: 'bar',
       barWidth: '60%',
-      data: [25, 15, 10, 6]
+      data: []
     }
   ]
-}
+})
 
-const monthOption = {
+const monthOption = ref({
   tooltip: {
     trigger: 'axis'
   },
@@ -200,7 +206,7 @@ const monthOption = {
   xAxis: {
     type: 'category',
     boundaryGap: false,
-    data: ['2023-05', '2023-06', '2023-07', '2023-08', '2023-09', '2023-10', '2023-11', '2023-12', '2024-01', '2024-02', '2024-03', '2024-04']
+    data: []
   },
   yAxis: {
     type: 'value'
@@ -210,12 +216,82 @@ const monthOption = {
       name: '关怀次数',
       type: 'line',
       stack: 'Total',
-      data: [45, 52, 48, 50, 55, 58, 62, 65, 50, 42, 48, 56],
+      data: [],
       smooth: true,
       areaStyle: {}
     }
   ]
+})
+
+// 加载统计概览数据
+const loadOverviewData = async () => {
+  try {
+    const res = await getOverviewStatistics()
+    if (res.code === 200) {
+      const data = res.data
+      statsData.totalPersons = data.totalPersons
+      statsData.newPersonsThisMonth = data.newPersonsThisMonth
+      statsData.careCountThisMonth = data.careCountThisMonth
+      statsData.coverageRate = data.coverageRate
+    }
+  } catch (error) {
+    console.error('获取统计概览数据失败:', error)
+  }
 }
+
+// 加载人员分类统计
+const loadCategoryStatistics = async () => {
+  try {
+    const res = await getCategoryStatistics()
+    if (res.code === 200 && res.data.seriesData) {
+      categoryOption.value.series[0].data = res.data.seriesData
+    }
+  } catch (error) {
+    console.error('获取人员分类统计失败:', error)
+  }
+}
+
+// 加载关怀类型统计
+const loadCareTypeStatistics = async () => {
+  try {
+    const res = await getCareTypeStatistics()
+    if (res.code === 200) {
+      if (res.data.xAxisData) {
+        typeOption.value.xAxis[0].data = res.data.xAxisData
+      }
+      if (res.data.seriesData) {
+        typeOption.value.series[0].data = res.data.seriesData
+      }
+    }
+  } catch (error) {
+    console.error('获取关怀类型统计失败:', error)
+  }
+}
+
+// 加载月度统计
+const loadMonthlyStatistics = async () => {
+  try {
+    const res = await getMonthlyStatistics()
+    if (res.code === 200) {
+      if (res.data.xAxisData) {
+        monthOption.value.xAxis.data = res.data.xAxisData
+      }
+      if (res.data.seriesData) {
+        monthOption.value.series[0].data = res.data.seriesData
+      }
+    }
+  } catch (error) {
+    console.error('获取月度统计失败:', error)
+  }
+}
+
+// 组件挂载时加载数据
+onMounted(() => {
+  loadOverviewData()
+  loadCategoryStatistics()
+  loadCareTypeStatistics()
+  loadMonthlyStatistics()
+})
 </script>
 
 <style lang="less" scoped>

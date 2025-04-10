@@ -169,7 +169,17 @@ watch(
 )
 
 const routes = computed(() => {
-  return router.options.routes.find(route => route.path === '/').children
+  const allRoutes = router.options.routes.find(route => route.path === '/').children;
+  
+  // 如果是管理员，显示所有菜单
+  if (userInfo.value.role.toLowerCase() === 'admin') {
+    return allRoutes;
+  }
+  
+  // 普通用户，过滤掉"分类管理"、"统计分析"和"用户管理"菜单
+  return allRoutes.filter(route => {
+    return !['/category', '/statistics', '/user'].includes(route.path);
+  });
 })
 
 const handleMenuClick = ({ key }) => {
