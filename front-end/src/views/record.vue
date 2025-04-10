@@ -40,8 +40,11 @@
       bordered
     >
       <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'personId'">
+          {{ getPerson(record.personId)?.label || '-' }}
+        </template>
         <template v-if="column.key === 'category'">
-          <a-tag>{{ record.category }}</a-tag>
+          {{ getPerson(record.personId)?.category || '-' }}
         </template>
         <template v-if="column.key === 'action'">
           <a-space>
@@ -121,11 +124,13 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import axios from 'axios'
 
+const peopleOptions = ref([])
+
 const columns = [
   {
     title: '关怀对象',
-    dataIndex: 'personName',
-    key: 'personName'
+    dataIndex: 'personId',
+    key: 'personId',
   },
   {
     title: '所属分类',
@@ -153,8 +158,6 @@ const columns = [
     fixed: 'right'
   }
 ]
-
-const peopleOptions = ref([])
 
 const categories = ref([])
 const searchCategory = ref()
@@ -338,6 +341,24 @@ const loadPeople = async () => {
     console.error('获取关怀对象列表失败:', error)
     message.error('获取关怀对象列表失败')
   }
+}
+
+// 根据personId获取对应的人员信息
+const getPerson = (personId) => {
+  const option = peopleOptions.value.find(item => item.value === personId);
+  if (!option) return null;
+  
+  // 解析label中的类别信息 "姓名（类别）"
+  const match = option.label.match(/(.+)（(.+)）/);
+  if (match) {
+    return {
+      ...option,
+      name: match[1],
+      category: match[2]
+    };
+  }
+  
+  return option;
 }
 
 // 组件挂载时加载数据
