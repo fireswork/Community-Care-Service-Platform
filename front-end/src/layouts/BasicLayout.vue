@@ -18,7 +18,7 @@
               <template #icon>
                 <component :is="item.meta?.icon" />
               </template>
-              <span>{{ userInfo.role === 'admin' ? item.meta?.title : item.meta?.title?.replace('管理', '') }}</span>
+              <span>{{ userInfo.role.toLowerCase() === 'admin' ? item.meta?.title : item.meta?.title?.replace('管理', '') }}</span>
             </a-menu-item>
           </template>
           <template v-else>
@@ -151,6 +151,7 @@ import {
   BarChartOutlined,
   KeyOutlined
 } from '@ant-design/icons-vue'
+import { updateUserInfo, changePassword } from '@/api/user'
 
 const router = useRouter()
 const route = useRoute()
@@ -200,20 +201,35 @@ const userInfoRules = {
 
 const showUserInfoModal = () => {
   userInfoModalVisible.value = true
-  // 这里应该调用API获取用户信息
-  userInfoForm.name = '管理员'
-  userInfoForm.phone = '13800138000'
+  Object.assign(userInfoForm, {
+    username: userInfo.value.username,
+    name: userInfo.value.name,
+    phone: userInfo.value.phone
+  })
 }
 
 const handleUserInfoSubmit = () => {
-  userInfoFormRef.value.validate().then(() => {
-    userInfoConfirmLoading.value = true
-    // 这里应该调用修改用户信息的API
-    setTimeout(() => {
+  userInfoFormRef.value.validate().then(async () => {
+    try {
+      userInfoConfirmLoading.value = true
+      await updateUserInfo({
+        name: userInfoForm.name,
+        phone: userInfoForm.phone
+      })
       message.success('个人信息修改成功')
-      userInfoConfirmLoading.value = false
+      // 更新本地存储的用户信息
+      userInfo.value = {
+        ...userInfo.value,
+        name: userInfoForm.name,
+        phone: userInfoForm.phone
+      }
+      localStorage.setItem('user', JSON.stringify(userInfo.value))
       userInfoModalVisible.value = false
-    }, 1500)
+    } catch (error) {
+      message.error(error.response?.data?.message || '修改失败')
+    } finally {
+      userInfoConfirmLoading.value = false
+    }
   })
 }
 
@@ -254,14 +270,28 @@ const showChangePasswordModal = () => {
 }
 
 const handleChangePasswordSubmit = () => {
-  changePasswordFormRef.value.validate().then(() => {
-    changePasswordConfirmLoading.value = true
-    // 这里应该调用修改密码的API
-    setTimeout(() => {
+  changePasswordFormRef.value.validate().then(async () => {
+    try {
+      changePasswordConfirmLoading.value = true
+      await changePassword({
+        oldPassword: changePasswordForm.oldPassword,
+        newPassword: changePasswordForm.newPassword
+      })
       message.success('密码修改成功')
-      changePasswordConfirmLoading.value = false
       changePasswordModalVisible.value = false
-    }, 1500)
+      // 清空表单
+      changePasswordForm.oldPassword = ''
+      changePasswordForm.newPassword = ''
+      changePasswordForm.confirmPassword = ''
+      // 退出登录，重新登录
+      setTimeout(() => {
+        handleLogout()
+      }, 1500)
+    } catch (error) {
+      message.error(error.response?.data?.message || '修改失败')
+    } finally {
+      changePasswordConfirmLoading.value = false
+    }
   })
 }
 </script>

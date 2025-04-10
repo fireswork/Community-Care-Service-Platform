@@ -8,9 +8,11 @@
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/controller/AuthController.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/ServerApplication.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/common/GlobalExceptionHandler.java
+/Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/service/impl/UserServiceImpl.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/exception/UnauthorizedException.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/config/JacksonConfig.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/controller/CategoryController.java
+/Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/model/dto/UserDTO.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/security/JwtTokenUtil.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/model/Person.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/service/RecordService.java
@@ -24,6 +26,8 @@
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/exception/ResourceNotFoundException.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/config/SecurityConfig.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/service/UserService.java
+/Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/controller/UserController.java
+/Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/exception/BusinessException.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/security/JwtAuthenticationFilter.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/controller/PersonController.java
 /Users/aaxis/Desktop/projects/Community-Care-Service-Platform/server/src/main/java/com/community/server/controller/RecordController.java

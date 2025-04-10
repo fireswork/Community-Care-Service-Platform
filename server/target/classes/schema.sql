@@ -66,9 +66,9 @@ CREATE TABLE IF NOT EXISTS `record` (
     CONSTRAINT `fk_record_person` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='关怀记录表';
 
--- 插入管理员用户（密码：admin123，使用BCrypt加密）
+-- 插入管理员用户（密码：123456，使用BCrypt加密）
 INSERT INTO `user` (`username`, `password`, `name`, `phone`, `role`, `status`)
-VALUES ('admin', '$2a$10$X/hX6J8eP9yWjqWF4TTGPuXGJYe.3v1YkgGHxFGZLOXFHUkEa.IHi', '管理员', '13800138000', 'ADMIN', 1)
+VALUES ('admin', '$2a$10$F9U1ITY4/W3G.LfQejlTNuMSTvueYm0JD14UjwKdHpL4dnf7MpBBy', '管理员', '13800138000', 'ADMIN', 1)
 ON DUPLICATE KEY UPDATE `update_time` = CURRENT_TIMESTAMP;
 
 -- DROP TABLE IF EXISTS record;

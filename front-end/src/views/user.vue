@@ -19,11 +19,6 @@
             {{ record.role === 'admin' ? '管理员' : '普通用户' }}
           </a-tag>
         </template>
-        <template v-if="column.key === 'status'">
-          <a-tag :color="record.status ? 'success' : 'error'">
-            {{ record.status ? '启用' : '禁用' }}
-          </a-tag>
-        </template>
         <template v-if="column.key === 'action'">
           <a-space>
             <a @click="handleEdit(record)">编辑</a>
@@ -83,9 +78,6 @@
             <a-select-option value="user">普通用户</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item label="状态" name="status">
-          <a-switch v-model:checked="formState.status" />
-        </a-form-item>
       </a-form>
     </a-modal>
 
@@ -123,6 +115,7 @@
 import { ref, reactive } from 'vue'
 import { message } from 'ant-design-vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
+import { getUserList, createUser, updateUser, deleteUser, resetUserPassword } from '@/api/user'
 
 const columns = [
   {
@@ -147,37 +140,13 @@ const columns = [
     width: 100
   },
   {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-    width: 100
-  },
-  {
     title: '操作',
     key: 'action',
     width: 250
   }
 ]
 
-const dataSource = ref([
-  {
-    id: 1,
-    username: 'admin',
-    name: '管理员',
-    phone: '13800138000',
-    role: 'admin',
-    status: true
-  },
-  {
-    id: 2,
-    username: 'zhangsan',
-    name: '张三',
-    phone: '13900139000',
-    role: 'user',
-    status: true
-  }
-])
-
+const dataSource = ref([])
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref('新增用户')
@@ -189,15 +158,17 @@ const formState = reactive({
   password: '',
   name: '',
   phone: '',
-  role: undefined,
-  status: true
+  role: undefined
 })
 
 const rules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-  phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+  ],
   role: [{ required: true, message: '请选择角色', trigger: 'change' }]
 }
 
@@ -226,6 +197,18 @@ const resetPasswordRules = {
   ]
 }
 
+const fetchData = async () => {
+  try {
+    loading.value = true
+    const response = await getUserList()
+    dataSource.value = response.data
+  } catch (error) {
+    message.error('获取用户列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
 const showModal = () => {
   modalTitle.value = '新增用户'
   currentId.value = null
@@ -234,8 +217,7 @@ const showModal = () => {
     password: '',
     name: '',
     phone: '',
-    role: undefined,
-    status: true
+    role: undefined
   })
   modalVisible.value = true
 }
@@ -247,37 +229,40 @@ const handleEdit = (record) => {
   modalVisible.value = true
 }
 
-const handleDelete = (record) => {
-  loading.value = true
-  const index = dataSource.value.findIndex(item => item.id === record.id)
-  if (index > -1) {
-    dataSource.value.splice(index, 1)
+const handleDelete = async (record) => {
+  try {
+    loading.value = true
+    await deleteUser(record.id)
     message.success('删除成功')
+    fetchData()
+  } catch (error) {
+    message.error('删除失败')
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 
 const handleModalOk = () => {
-  formRef.value.validate().then(() => {
-    loading.value = true
-    if (currentId.value) {
-      const index = dataSource.value.findIndex(item => item.id === currentId.value)
-      if (index > -1) {
-        dataSource.value[index] = {
-          ...dataSource.value[index],
+  formRef.value.validate().then(async () => {
+    try {
+      loading.value = true
+      if (currentId.value) {
+        await updateUser({
+          id: currentId.value,
           ...formState
-        }
+        })
         message.success('编辑成功')
+      } else {
+        await createUser(formState)
+        message.success('新增成功')
       }
-    } else {
-      dataSource.value.push({
-        id: Date.now(),
-        ...formState
-      })
-      message.success('新增成功')
+      modalVisible.value = false
+      fetchData()
+    } catch (error) {
+      message.error(error.response?.data?.message || '操作失败')
+    } finally {
+      loading.value = false
     }
-    loading.value = false
-    modalVisible.value = false
   })
 }
 
@@ -285,11 +270,16 @@ const handleModalCancel = () => {
   modalVisible.value = false
 }
 
-const handleResetPassword = (record) => {
-  resetPasswordUserId.value = record.id
-  resetPasswordForm.password = ''
-  resetPasswordForm.confirmPassword = ''
-  resetPasswordVisible.value = true
+const handleResetPassword = async (record) => {
+  try {
+    loading.value = true
+    await resetUserPassword(record.id)
+    message.success('密码重置成功')
+  } catch (error) {
+    message.error('密码重置失败')
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleResetPasswordOk = () => {
@@ -305,6 +295,9 @@ const handleResetPasswordOk = () => {
 const handleResetPasswordCancel = () => {
   resetPasswordVisible.value = false
 }
+
+// 页面加载时获取数据
+fetchData()
 </script>
 
 <style lang="less" scoped>

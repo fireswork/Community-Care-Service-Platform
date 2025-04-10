@@ -8,14 +8,20 @@
         <result column="name" property="name"/>
         <result column="phone" property="phone"/>
         <result column="role" property="role"/>
-        <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, username, password, name, phone, role, status, create_time, update_time
+        id, username, password, name, phone, role, create_time, update_time
     </sql>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user
+        WHERE id = #{id}
+    </select>
 
     <select id="findByUsername" resultMap="BaseResultMap">
         SELECT
@@ -24,11 +30,19 @@
         WHERE username = #{username}
     </select>
 
+    <select id="findAllUsers" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user
+        WHERE role = 'USER'
+        ORDER BY create_time DESC
+    </select>
+
     <insert id="insert" parameterType="com.community.server.model.User" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user (
-            username, password, name, phone, role, status, create_time, update_time
+            username, password, name, phone, role, create_time, update_time
         ) VALUES (
-            #{username}, #{password}, #{name}, #{phone}, #{role}, #{status}, NOW(), NOW()
+            #{username}, #{password}, #{name}, #{phone}, #{role}, NOW(), NOW()
         )
     </insert>
 
@@ -39,13 +53,12 @@
             <if test="name != null">name = #{name},</if>
             <if test="phone != null">phone = #{phone},</if>
             <if test="role != null">role = #{role},</if>
-            <if test="status != null">status = #{status},</if>
             update_time = NOW()
         </set>
         WHERE id = #{id}
     </update>
 
     <delete id="deleteById">
-        DELETE FROM user WHERE id = #{id}
+        DELETE FROM user WHERE id = #{id} AND role = 'USER'
     </delete>
 </mapper> 

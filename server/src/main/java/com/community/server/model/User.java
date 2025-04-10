@@ -1,5 +1,6 @@
 package com.community.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +16,6 @@ public class User implements UserDetails {
     private String name;
     private String phone;
     private String role; // admin or user
-    private Boolean status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
@@ -69,14 +69,6 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
-    }
-
     public LocalDateTime getCreateTime() {
         return createTime;
     }
@@ -94,27 +86,32 @@ public class User implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + (role != null ? role.toUpperCase() : "USER")));
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
-        return status != null && status;
+        return true;
     }
 } 
